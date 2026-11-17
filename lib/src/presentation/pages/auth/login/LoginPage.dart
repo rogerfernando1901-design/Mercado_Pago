@@ -1,11 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce_flutter/src/presentation/widgets/DefaultTextField.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LoginPage extends StatelessWidget {
+import 'LoginBlocCubit.dart';
+
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  LoginBlocCubit? _loginBlocCubit;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _loginBlocCubit = BlocProvider.of<LoginBlocCubit>(context, listen: false);
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -42,23 +59,37 @@ class LoginPage extends StatelessWidget {
                   ),
                   Container(
                     margin: EdgeInsets.only(left: 25, right: 25),
-                    child: DefaultTextField(
-                      label: 'Correo electrónico',
-                      icon: Icons.email,
-                      onChanged: (text) {
-                        print('Text: ${text}'); // Handle text change
+                    child: StreamBuilder(
+                      stream: _loginBlocCubit?.emailStream,
+                      builder: (context, asyncSnapshot) {
+                        return DefaultTextField(
+                          label: 'Correo electrónico',
+                          icon: Icons.email,
+                          onChanged: (text) {
+                            _loginBlocCubit?.changeEmail(
+                              text,
+                            ); // Handle text change
+                          },
+                        );
                       },
                     ),
                   ),
                   Container(
                     margin: EdgeInsets.only(left: 25, right: 25),
-                    child: DefaultTextField(
-                      label: 'Contraseña',
-                      icon: Icons.lock,
-                      onChanged: (text) {
-                        print('Text: ${text}'); // Handle text change
+                    child: StreamBuilder(
+                      stream: _loginBlocCubit?.passwordStream,
+                      builder: (context, asyncSnapshot) {
+                        return DefaultTextField(
+                          label: 'Contraseña',
+                          icon: Icons.lock,
+                          onChanged: (text) {
+                            _loginBlocCubit?.changePassword(
+                              text,
+                            ); // Handle text change
+                          },
+                          obscureText: true, // Hide the text for password
+                        );
                       },
-                      obscureText: true, // Hide the text for password
                     ),
                   ),
                   Container(
@@ -71,7 +102,9 @@ class LoginPage extends StatelessWidget {
                       bottom: 15,
                     ),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _loginBlocCubit?.login();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                       ),
