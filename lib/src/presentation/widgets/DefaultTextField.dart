@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class DefaultTextField extends StatelessWidget {
   String label;
+  String? errorText;
   IconData icon;
   Function(String) onChanged;
   bool obscureText;
@@ -10,6 +11,7 @@ class DefaultTextField extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onChanged,
+    this.errorText,
     this.obscureText = false,
   });
 
@@ -22,6 +24,7 @@ class DefaultTextField extends StatelessWidget {
       },
       decoration: InputDecoration(
         label: Text(label, style: TextStyle(color: Colors.white)),
+        errorText: errorText,
         prefixIcon: Icon(icon, color: Colors.white),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.white),

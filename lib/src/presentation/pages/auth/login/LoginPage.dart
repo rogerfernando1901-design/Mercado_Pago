@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ecommerce_flutter/src/presentation/widgets/DefaultTextField.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'LoginBlocCubit.dart';
 
@@ -17,6 +18,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _loginBlocCubit?.dispose();
+    });
   }
 
   @override
@@ -61,10 +65,11 @@ class _LoginPageState extends State<LoginPage> {
                     margin: EdgeInsets.only(left: 25, right: 25),
                     child: StreamBuilder(
                       stream: _loginBlocCubit?.emailStream,
-                      builder: (context, asyncSnapshot) {
+                      builder: (context, snapshot) {
                         return DefaultTextField(
                           label: 'Correo electrónico',
                           icon: Icons.email,
+                          errorText: snapshot.error?.toString(),
                           onChanged: (text) {
                             _loginBlocCubit?.changeEmail(
                               text,
@@ -78,10 +83,11 @@ class _LoginPageState extends State<LoginPage> {
                     margin: EdgeInsets.only(left: 25, right: 25),
                     child: StreamBuilder(
                       stream: _loginBlocCubit?.passwordStream,
-                      builder: (context, asyncSnapshot) {
+                      builder: (context, snapshot) {
                         return DefaultTextField(
                           label: 'Contraseña',
                           icon: Icons.lock,
+                          errorText: snapshot.error?.toString(),
                           onChanged: (text) {
                             _loginBlocCubit?.changePassword(
                               text,
@@ -101,17 +107,31 @@ class _LoginPageState extends State<LoginPage> {
                       top: 25,
                       bottom: 15,
                     ),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _loginBlocCubit?.login();
+                    child: StreamBuilder(
+                      stream: _loginBlocCubit?.validateForm,
+                      builder: (context, snapshot) {
+                        return ElevatedButton(
+                          onPressed: () {
+                            if (snapshot.hasData) {
+                              _loginBlocCubit?.login();
+                            } else {
+                              Fluttertoast.showToast(
+                                msg: 'El formulario no es valido',
+                                toastLength: Toast.LENGTH_LONG,
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: snapshot.hasData
+                                ? Colors.green
+                                : Colors.grey,
+                          ),
+                          child: Text(
+                            'INICIAR SESION',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                      child: Text(
-                        'INICIAR SESION',
-                        style: TextStyle(color: Colors.black),
-                      ),
                     ),
                   ),
                   Row(
